@@ -1,25 +1,25 @@
 package me.carmelo.theforums.service.user;
 
-
-import me.carmelo.theforums.entity.User;
+import me.carmelo.theforums.model.dto.UserDTO;
+import me.carmelo.theforums.model.result.OperationResult;
 
 import java.util.List;
 
 public interface IUserService {
 
-    User findById(Long id);
+    UserDTO findById(Long id);
 
-    User findByUsername(String username);
+    UserDTO findByUsername(String username);
 
-    User findByEmail(String email);
+    UserDTO findByEmail(String email);
 
-    List<User> findAll();
+    List<UserDTO> findAll();
 
-    User createUser(User user);
+    OperationResult<Long> createUser(UserDTO userDTO);
 
-    User updateUser(Long id, User user);
+    UserDTO updateUser(Long id, UserDTO userDTO);
 
     void deleteUser(Long id);
 
-    User updatePassword(Long id, String newPassword);
+    UserDTO updatePassword(Long id, String newPassword);
 }
