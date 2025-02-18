@@ -1,16 +1,18 @@
 package me.carmelo.theforums.service.user;
 
 import lombok.AllArgsConstructor;
+import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.model.dto.UserDTO;
+import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
+import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,26 +21,12 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Override
-    public UserDTO findById(Long id) {
+    public Optional<UserDTO> findById(Long id) {
         return userRepository.findById(id)
-                .map(this::mapToDTO)
-                .orElse(null);
-    }
-
-    @Override
-    public UserDTO findByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .map(this::mapToDTO)
-                .orElse(null);
-    }
-
-    @Override
-    public UserDTO findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(this::mapToDTO)
-                .orElse(null);
+                .map(this::mapToDTO);
     }
 
     @Override
@@ -85,9 +73,11 @@ public class UserService implements IUserService {
 
 
     @Override
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+    public OperationResult<Long> updateUser(Long id, UserDTO userDTO) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty())
+            return new OperationResult<>(OperationStatus.NOT_FOUND, "User with id " + id + " not found", null);
+        User existingUser = userOptional.get();
 
         existingUser.setUsername(userDTO.getUsername());
         existingUser.setEmail(userDTO.getEmail());
@@ -96,25 +86,52 @@ public class UserService implements IUserService {
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty())
             existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-        User updatedUser = userRepository.save(existingUser);
-        return mapToDTO(updatedUser);
+        userRepository.save(existingUser);
+
+        return new OperationResult<>(OperationStatus.SUCCESS, "User updated successfully.", existingUser.getId());
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public boolean deleteUser(Long id) {
         if (!userRepository.existsById(id))
-            throw new RuntimeException("User not found with id " + id);
+            return false;
 
         userRepository.deleteById(id);
+        return true;
     }
 
     @Override
-    public UserDTO updatePassword(Long id, String newPassword) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
-        user.setPassword(passwordEncoder.encode(newPassword));
-        User updatedUser = userRepository.save(user);
-        return mapToDTO(updatedUser);
+    public OperationResult<Long> manageRoleForUser(Long id, UserRolesUpdateRequest request) {
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty())
+            return new OperationResult<>(OperationStatus.NOT_FOUND, "User with id " + id + " not found", null);
+        User user = userOptional.get();
+
+        Set<Role> roles = new HashSet<>();
+
+        for (Long roleId : request.getRoleIds()) {
+            Optional<Role> roleOptional = roleRepository.findById(roleId);
+            if (roleOptional.isEmpty()) continue;
+            roles.add(roleOptional.get());
+        }
+
+        return switch (request.getAction()) {
+            case ADD -> {
+                user.getRoles().addAll(roles);
+                yield new OperationResult<>(OperationStatus.SUCCESS, "Roles added correctly", (long) roles.size());
+            }
+
+            case REMOVE -> {
+                user.getRoles().removeAll(roles);
+                yield new OperationResult<>(OperationStatus.SUCCESS, "Roles remove correctly", (long) roles.size());
+            }
+
+            case SET -> {
+                user.setRoles(roles);
+                yield new OperationResult<>(OperationStatus.SUCCESS, "Roles set correctly", (long) roles.size());
+            }
+        };
     }
 
     private UserDTO mapToDTO(User user) {
