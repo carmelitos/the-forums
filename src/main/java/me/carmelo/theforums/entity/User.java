@@ -29,6 +29,11 @@ public class User {
 
     private String password;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    private String verificationToken;
+
     @ManyToMany
     @JoinTable(
             name = "user_roles",

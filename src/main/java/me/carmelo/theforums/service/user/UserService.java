@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,9 +59,30 @@ public class UserService implements IUserService {
 
         User user = mapToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setEmailVerified(true); //let's enforce email verification since this method is only accessible to admins
         User savedUser = userRepository.save(user);
         return new OperationResult<>(OperationStatus.SUCCESS, "User created successfully", savedUser.getId());
     }
+
+    @Override
+    public OperationResult<Long> registerUser(UserDTO userDTO) {
+        if (userRepository.findByUsername(userDTO.getUsername()).isPresent())
+            return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", null);
+
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent())
+            return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", null);
+
+        User user = mapToEntity(userDTO);
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setEmailVerified(false);
+        user.setVerificationToken(UUID.randomUUID().toString()); // Generate a random token
+        User savedUser = userRepository.save(user);
+
+        // TODO send verification email by using an email handler or something like that
+
+        return new OperationResult<>(OperationStatus.SUCCESS, "User created successfully. Email is unverified.", savedUser.getId());
+    }
+
 
     @Override
     public UserDTO updateUser(Long id, UserDTO userDTO) {

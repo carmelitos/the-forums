@@ -25,6 +25,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
+        if (!user.isEmailVerified()) {
+            throw new UsernameNotFoundException("Email not verified for user: " + username);
+        }
+
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         // Map roles to authorities (prefixed with "ROLE_")

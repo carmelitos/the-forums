@@ -16,6 +16,7 @@ public interface IUserService {
     List<UserDTO> findAll();
 
     OperationResult<Long> createUser(UserDTO userDTO);
+    OperationResult<Long> registerUser(UserDTO userDTO);
 
     UserDTO updateUser(Long id, UserDTO userDTO);
 
