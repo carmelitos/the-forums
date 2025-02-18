@@ -47,8 +47,7 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         Optional<User> userOptional = userRepository.findByVerificationToken(token);
 
-        if (userOptional.isEmpty())
-            return ResponseEntity.badRequest().body("Invalid verification token.");
+        if (userOptional.isEmpty()) return ResponseEntity.badRequest().body("Invalid verification token.");
 
         User user = userOptional.get();
         user.setEmailVerified(true);

@@ -25,24 +25,23 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        if (!user.isEmailVerified()) {
+        if (!user.isEmailVerified())
             throw new UsernameNotFoundException("Email not verified for user: " + username);
-        }
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         // Map roles to authorities (prefixed with "ROLE_")
         user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getId()));
             // Also include permissions that come with the role (prefixed with "PERMISSION_")
             role.getPermissions().forEach(permission ->
-                    authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getName()))
+                    authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
             );
         });
 
         // Map any permissions that are directly assigned to the user
         user.getPermissions().forEach(permission ->
-                authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getName()))
+                authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
         );
 
         return new org.springframework.security.core.userdetails.User(
