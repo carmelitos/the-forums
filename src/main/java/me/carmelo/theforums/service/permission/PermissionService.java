@@ -1,11 +1,14 @@
 package me.carmelo.theforums.service.permission;
 
 import me.carmelo.theforums.entity.Permission;
+import me.carmelo.theforums.model.dto.PermissionDTO;
+import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.enums.DefaultPermission;
 import me.carmelo.theforums.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PermissionService implements IPermissionService {
@@ -17,6 +20,13 @@ public class PermissionService implements IPermissionService {
         initDefaultRoles();
     }
 
+    public Optional<PermissionDTO> findById(Long id) {
+        return permissionRepository.findById(id).map(this::mapToDTO);
+    }
+
+    public Optional<PermissionDTO> findById(String name) {
+        return permissionRepository.findPermissionByName(name).map(this::mapToDTO);
+    }
 
     private void initDefaultRoles() {
         for (DefaultPermission defaultPermission : DefaultPermission.values()) {
@@ -34,5 +44,12 @@ public class PermissionService implements IPermissionService {
 
     public Permission getPermission(String permissionName) {
         return permissionRepository.findPermissionByName(permissionName).orElse(null);
+    }
+
+    public PermissionDTO mapToDTO(Permission permission) {
+        PermissionDTO permissionDTO = new PermissionDTO();
+        permissionDTO.setName(permission.getName());
+        permissionDTO.setDefault(permission.isDefault());
+        return permissionDTO;
     }
 }
