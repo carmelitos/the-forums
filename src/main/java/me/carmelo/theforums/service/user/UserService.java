@@ -3,12 +3,14 @@ package me.carmelo.theforums.service.user;
 import lombok.RequiredArgsConstructor;
 import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
+import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
+import me.carmelo.theforums.service.role.IRoleService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final IRoleService roleService;
 
     @Override
     public Optional<UserDTO> findById(Long id) {
@@ -66,6 +69,14 @@ public class UserService implements IUserService {
         return userRepository.findById(id)
                 .map(user -> updateUserRoles(user, request))
                 .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", null));
+    }
+
+    @Override
+    public List<RoleDTO> getUserRoles(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return Collections.emptyList();
+        Set<Role> roles = user.getRoles();
+        return roles.stream().map(roleService::mapToDTO).collect(Collectors.toList());
     }
 
     private OperationResult<Long> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated) {

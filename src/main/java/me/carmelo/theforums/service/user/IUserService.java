@@ -1,5 +1,6 @@
 package me.carmelo.theforums.service.user;
 
+import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
 import me.carmelo.theforums.model.result.OperationResult;
@@ -18,5 +19,6 @@ public interface IUserService {
 
     boolean deleteUser(Long id);
 
+    List<RoleDTO> getUserRoles(Long userId);
     OperationResult<Long> manageRoleForUser(Long id, UserRolesUpdateRequest request);
 }
