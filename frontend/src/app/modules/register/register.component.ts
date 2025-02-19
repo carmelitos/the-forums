@@ -26,12 +26,14 @@ export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  isRegistering: boolean;
 
   constructor(
       private fb: FormBuilder,
       private authService: AuthService,
       private router: Router
   ) {
+    this.isRegistering = false;
     this.registerForm = this.fb.group(
         {
           username: ['', Validators.required],
@@ -57,21 +59,22 @@ export class RegisterComponent {
         password: this.registerForm.get('password')?.value
       };
 
+      if(this.isRegistering) return;
+
+      this.isRegistering = true;
       this.authService.register(user).subscribe({
         next: (result: OperationResult<number>) => {
           if (result.status === 'SUCCESS') {
-            // Set a flag if needed for route-guard logic
+            this.authService.sendVerificationEmail(user.email).subscribe();
             localStorage.setItem('emailSent', 'true');
-            // Optionally, you can pass the message to the email-sent page or simply navigate
-            this.router.navigate(['/email-sent']);
+            this.router.navigate(['/email-sent']).then();
           } else {
-            // Display the dynamic message from the operation result
+            this.isRegistering = false;
             this.errorMessage = result.message;
           }
         },
         error: (error) => {
           console.error('Registration failed', error);
-          // If the error response contains an operation result, display its message:
           this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
         }
       });

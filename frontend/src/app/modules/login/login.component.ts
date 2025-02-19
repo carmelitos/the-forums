@@ -42,13 +42,10 @@ export class LoginComponent {
       const credentials: AuthenticationRequest = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: (response: AuthenticationResponse) => {
-          // On successful login, navigate to a protected route
           this.router.navigate(['/dashboard']);
         },
         error: (error: any) => {
           console.error('Login failed', error);
-          // If the backend returns an operation result in the error response,
-          // display its message. For example, if error.error.message exists:
           this.errorMessage = error.error?.message || 'Login failed. Please try again.';
         }
       });

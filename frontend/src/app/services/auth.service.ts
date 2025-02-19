@@ -74,6 +74,14 @@ export class AuthService {
     );
   }
 
+  sendVerificationEmail(email: string): Observable<OperationResult<string>> {
+    return this.http.post<OperationResult<string>>(`${this.baseUrl}/send-verification-email`, email).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
   refreshToken(): Observable<AuthenticationResponse> {
     const refreshToken = this.tokenStorage.getRefreshToken();
     if (!refreshToken) {

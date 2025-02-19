@@ -53,7 +53,7 @@ public class AuthService implements IAuthService {
         if(token == null) new OperationResult<>(OperationStatus.FAILURE, "Token not found?", "Token not found?");
 
         //TODO implement a frontend page to redirect where the user can click a button to send the down described api request
-        emailService.sendHtmlEmail("verification", email, "Verify your email address", verificationEmail.replace("{verification-request-to-verify}", "http://localhost:8080/api/auth/verify-email/" + token));
+        emailService.sendHtmlEmail("noreply", email, "Verify your email address", verificationEmail.replace("{verification-request-to-verify}", "http://localhost:8080/api/auth/verify-email/" + token));
 
         redisTemplate.opsForValue().set(redisKey, "cooldown_active", 180, TimeUnit.SECONDS);
 

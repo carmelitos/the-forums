@@ -7,6 +7,7 @@ import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.UserRepository;
+import me.carmelo.theforums.service.auth.IAuthService;
 import me.carmelo.theforums.service.email.IEmailService;
 import me.carmelo.theforums.service.user.CustomUserDetailsService;
 import me.carmelo.theforums.service.user.IUserService;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final IUserService userService;
-    private final IEmailService emailService;
+    private final IAuthService authService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
@@ -42,9 +43,7 @@ public class AuthController {
 
     @PostMapping
     public ResponseEntity<OperationResult<String>> sendVerificationEmail(@RequestBody String email) {
-        throw new RuntimeException(
-
-        );
+        return new ResponseEntity<>(authService.sendVerificationEmail(email), HttpStatus.OK);
     }
 
     @GetMapping("/verify-email/{token}")
