@@ -32,6 +32,20 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public Optional<UserDTO> findByUsername(String username) {
+        return userRepository.findByUsername(username).map(this::mapToDTO);
+    }
+
+    @Override
+    public boolean hasVerifiedEmail(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) return false;
+        User user = userOptional.get();
+        return user.isEmailVerified();
+    }
+
+
+    @Override
     public List<UserDTO> findAll() {
         return userRepository.findAll().stream()
                 .map(this::mapToDTO)
@@ -52,7 +66,7 @@ public class UserService implements IUserService {
     public OperationResult<Long> updateUser(Long id, UserDTO userDTO) {
         return userRepository.findById(id)
                 .map(existingUser -> updateUserDetails(existingUser, userDTO))
-                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", null));
+                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", 0L));
     }
 
     @Override
@@ -68,23 +82,22 @@ public class UserService implements IUserService {
     public OperationResult<Long> manageRoleForUser(Long id, UserRolesUpdateRequest request) {
         return userRepository.findById(id)
                 .map(user -> updateUserRoles(user, request))
-                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", null));
+                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", 0L));
     }
 
     @Override
     public List<RoleDTO> getUserRoles(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null) return Collections.emptyList();
-        Set<Role> roles = user.getRoles();
-        return roles.stream().map(roleService::mapToDTO).collect(Collectors.toList());
+        if (user == null) return null;
+        return user.getRoles().stream().map(roleService::mapToDTO).collect(Collectors.toList());
     }
 
     private OperationResult<Long> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated) {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent())
-            return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", null);
+            return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", 0L);
 
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent())
-            return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", null);
+            return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", 0L);
 
         User user = mapToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -93,7 +106,7 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(user);
         String message = isAdminCreated ? "User created successfully" : "User created successfully. Email is unverified.";
-        return new OperationResult<>(OperationStatus.SUCCESS, message, savedUser.getId());
+        return new OperationResult<>(OperationStatus.SUCCESS, message, 1L);
     }
 
     private OperationResult<Long> updateUserDetails(User user, UserDTO userDTO) {
@@ -105,7 +118,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         userRepository.save(user);
-        return new OperationResult<>(OperationStatus.SUCCESS, "User updated successfully", user.getId());
+        return new OperationResult<>(OperationStatus.SUCCESS, "User updated successfully", 1L);
     }
 
     private OperationResult<Long> updateUserRoles(User user, UserRolesUpdateRequest request) {
@@ -122,7 +135,7 @@ public class UserService implements IUserService {
         }
 
         userRepository.save(user);
-        return new OperationResult<>(OperationStatus.SUCCESS, "Roles updated successfully", (long) roles.size());
+        return new OperationResult<>(OperationStatus.SUCCESS, "Roles updated successfully", 1L);
     }
 
     private UserDTO mapToDTO(User user) {

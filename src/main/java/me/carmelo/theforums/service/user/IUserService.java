@@ -11,7 +11,10 @@ import java.util.Optional;
 public interface IUserService {
 
     Optional<UserDTO> findById(Long id);
+    Optional<UserDTO> findByUsername(String username);
     List<UserDTO> findAll();
+
+    boolean hasVerifiedEmail(String username);
 
     OperationResult<Long> createUser(UserDTO userDTO);
     OperationResult<Long> registerUser(UserDTO userDTO);

@@ -34,9 +34,9 @@ public class AuthController {
         return handleResult(userService.registerUser(dto));
     }
 
-    @PostMapping("/verify-email")
-    public ResponseEntity<OperationResult<String>> verifyEmail(@RequestParam String verificationToken) {
-        return userRepository.findByVerificationToken(verificationToken)
+    @GetMapping("/verify-email/{token}")
+    public ResponseEntity<OperationResult<String>> verifyEmail(@PathVariable String token) {
+        return userRepository.findByVerificationToken(token)
                 .map(user -> {
                     user.setEmailVerified(true);
                     user.setVerificationToken(null);
@@ -58,6 +58,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
+
+        if(!userService.hasVerifiedEmail(request.username())) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
