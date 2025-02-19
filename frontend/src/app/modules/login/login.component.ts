@@ -42,7 +42,7 @@ export class LoginComponent {
       const credentials: AuthenticationRequest = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: (response: AuthenticationResponse) => {
-          this.router.navigate(['/dashboard']);
+
         },
         error: (error: any) => {
           console.error('Login failed', error);

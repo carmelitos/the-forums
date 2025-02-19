@@ -41,7 +41,7 @@ public class AuthController {
         return new ResponseEntity<>(responseEntity, HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/send-verification-email")
     public ResponseEntity<OperationResult<String>> sendVerificationEmail(@RequestBody String email) {
         return new ResponseEntity<>(authService.sendVerificationEmail(email), HttpStatus.OK);
     }
