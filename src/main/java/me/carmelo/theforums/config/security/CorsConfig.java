@@ -1,4 +1,4 @@
-package me.carmelo.theforums.security;
+package me.carmelo.theforums.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

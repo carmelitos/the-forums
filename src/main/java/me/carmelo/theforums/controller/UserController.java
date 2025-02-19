@@ -44,13 +44,13 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('PERMISSION_CREATE_USER')")
-    public ResponseEntity<OperationResult<Long>> create(@RequestBody UserDTO dto) {
-        return handleResult(userService.createUser(dto), HttpStatus.CREATED);
+    public ResponseEntity<OperationResult<String>> create(@RequestBody UserDTO dto) {
+        return handleResult(userService.validateAndSaveUser(dto, true), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('PERMISSION_UPDATE_USER')")
-    public ResponseEntity<OperationResult<Long>> update(@PathVariable Long id, @RequestBody UserDTO dto) {
+    public ResponseEntity<OperationResult<String>> update(@PathVariable Long id, @RequestBody UserDTO dto) {
         return handleResult(userService.updateUser(id, dto));
     }
 
@@ -64,18 +64,18 @@ public class UserController {
 
     @PostMapping("/{id}/roles")
     @PreAuthorize("@securityChecker.hasRolePermission(#request.action)")
-    public ResponseEntity<OperationResult<Long>> manageRoles(
+    public ResponseEntity<OperationResult<String>> manageRoles(
             @PathVariable Long id,
             @RequestBody UserRolesUpdateRequest request) {
         return handleResult(userService.manageRoleForUser(id, request));
     }
 
-    private ResponseEntity<OperationResult<Long>> handleResult(OperationResult<Long> result) {
+    private ResponseEntity<OperationResult<String>> handleResult(OperationResult<String> result) {
         return handleResult(result, HttpStatus.ACCEPTED);
     }
 
-    private ResponseEntity<OperationResult<Long>> handleResult(
-            OperationResult<Long> result,
+    private ResponseEntity<OperationResult<String>> handleResult(
+            OperationResult<String> result,
             HttpStatus successStatus) {
         return ResponseEntity.status(result.getStatus() == OperationStatus.SUCCESS
                         ? successStatus

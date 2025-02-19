@@ -1,4 +1,4 @@
-package me.carmelo.theforums.security;
+package me.carmelo.theforums.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -16,12 +16,11 @@ public interface IUserService {
 
     boolean hasVerifiedEmail(String username);
 
-    OperationResult<Long> createUser(UserDTO userDTO);
-    OperationResult<Long> registerUser(UserDTO userDTO);
-    OperationResult<Long> updateUser(Long id, UserDTO userDTO);
+    OperationResult<String> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated);
+    OperationResult<String> updateUser(Long id, UserDTO userDTO);
 
     boolean deleteUser(Long id);
 
     List<RoleDTO> getUserRoles(Long userId);
-    OperationResult<Long> manageRoleForUser(Long id, UserRolesUpdateRequest request);
+    OperationResult<String> manageRoleForUser(Long id, UserRolesUpdateRequest request);
 }

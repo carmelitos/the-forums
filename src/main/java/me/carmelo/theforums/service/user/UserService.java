@@ -53,20 +53,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public OperationResult<Long> createUser(UserDTO userDTO) {
-        return validateAndSaveUser(userDTO, true);
-    }
-
-    @Override
-    public OperationResult<Long> registerUser(UserDTO userDTO) {
-        return validateAndSaveUser(userDTO, false);
-    }
-
-    @Override
-    public OperationResult<Long> updateUser(Long id, UserDTO userDTO) {
+    public OperationResult<String> updateUser(Long id, UserDTO userDTO) {
         return userRepository.findById(id)
                 .map(existingUser -> updateUserDetails(existingUser, userDTO))
-                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", 0L));
+                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", "User not found"));
     }
 
     @Override
@@ -79,10 +69,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public OperationResult<Long> manageRoleForUser(Long id, UserRolesUpdateRequest request) {
+    public OperationResult<String> manageRoleForUser(Long id, UserRolesUpdateRequest request) {
         return userRepository.findById(id)
                 .map(user -> updateUserRoles(user, request))
-                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", 0L));
+                .orElse(new OperationResult<>(OperationStatus.NOT_FOUND, "User not found", "User not found"));
     }
 
     @Override
@@ -92,12 +82,13 @@ public class UserService implements IUserService {
         return user.getRoles().stream().map(roleService::mapToDTO).collect(Collectors.toList());
     }
 
-    private OperationResult<Long> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated) {
+    @Override
+    public OperationResult<String> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated) {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent())
-            return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", 0L);
+            return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", "username already exists");
 
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent())
-            return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", 0L);
+            return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", "email already exists");
 
         User user = mapToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -106,10 +97,11 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(user);
         String message = isAdminCreated ? "User created successfully" : "User created successfully. Email is unverified.";
-        return new OperationResult<>(OperationStatus.SUCCESS, message, 1L);
+        String data = isAdminCreated ? "User created successfully" : savedUser.getVerificationToken();
+        return new OperationResult<>(OperationStatus.SUCCESS, message, data);
     }
 
-    private OperationResult<Long> updateUserDetails(User user, UserDTO userDTO) {
+    private OperationResult<String> updateUserDetails(User user, UserDTO userDTO) {
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
         user.setPhoneNumber(userDTO.getPhoneNumber());
@@ -118,10 +110,10 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         userRepository.save(user);
-        return new OperationResult<>(OperationStatus.SUCCESS, "User updated successfully", 1L);
+        return new OperationResult<>(OperationStatus.SUCCESS, "User updated successfully", "User updated successfully");
     }
 
-    private OperationResult<Long> updateUserRoles(User user, UserRolesUpdateRequest request) {
+    private OperationResult<String> updateUserRoles(User user, UserRolesUpdateRequest request) {
         Set<Role> roles = request.getRoleIds().stream()
                 .map(roleRepository::findById)
                 .filter(Optional::isPresent)
@@ -135,7 +127,7 @@ public class UserService implements IUserService {
         }
 
         userRepository.save(user);
-        return new OperationResult<>(OperationStatus.SUCCESS, "Roles updated successfully", 1L);
+        return new OperationResult<>(OperationStatus.SUCCESS, "Roles updated successfully", "Roles updated successfully");
     }
 
     private UserDTO mapToDTO(User user) {

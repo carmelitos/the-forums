@@ -1,13 +1,13 @@
 package me.carmelo.theforums.controller;
 
 import lombok.RequiredArgsConstructor;
-import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.model.dto.AuthenticationRequest;
 import me.carmelo.theforums.model.dto.AuthenticationResponse;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.UserRepository;
+import me.carmelo.theforums.service.email.IEmailService;
 import me.carmelo.theforums.service.user.CustomUserDetailsService;
 import me.carmelo.theforums.service.user.IUserService;
 import me.carmelo.theforums.utils.JwtUtil;
@@ -24,14 +24,27 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final IUserService userService;
+    private final IEmailService emailService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<OperationResult<Long>> register(@RequestBody UserDTO dto) {
-        return handleResult(userService.registerUser(dto));
+    public ResponseEntity<OperationResult<String>> register(@RequestBody UserDTO dto) {
+        OperationResult<String> responseEntity = userService.validateAndSaveUser(dto, false);
+
+        if (responseEntity.getStatus() == OperationStatus.FAILURE)
+            return new ResponseEntity<>(responseEntity, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(responseEntity, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<OperationResult<String>> sendVerificationEmail(@RequestBody String email) {
+        throw new RuntimeException(
+
+        );
     }
 
     @GetMapping("/verify-email/{token}")
@@ -59,7 +72,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
 
-        if(!userService.hasVerifiedEmail(request.username())) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        if (!userService.hasVerifiedEmail(request.username())) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -74,10 +87,4 @@ public class AuthController {
         ));
     }
 
-    private ResponseEntity<OperationResult<Long>> handleResult(OperationResult<Long> result) {
-        return ResponseEntity.status(result.getStatus() == OperationStatus.SUCCESS
-                        ? HttpStatus.OK
-                        : HttpStatus.BAD_REQUEST)
-                .body(result);
-    }
 }
