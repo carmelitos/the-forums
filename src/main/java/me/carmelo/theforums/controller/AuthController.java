@@ -1,6 +1,6 @@
 package me.carmelo.theforums.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.model.dto.AuthenticationRequest;
 import me.carmelo.theforums.model.dto.AuthenticationResponse;
@@ -18,11 +18,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
-@AllArgsConstructor
 public class AuthController {
 
     private final IUserService userService;
@@ -32,44 +30,51 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
-
-        // Create the user
-        OperationResult<Long> result = userService.registerUser(userDTO);
-
-        return new ResponseEntity<>(
-                result,
-                (result.getStatus() == OperationStatus.SUCCESS) ? HttpStatus.OK : HttpStatus.BAD_REQUEST
-        );
+    public ResponseEntity<OperationResult<Long>> register(@RequestBody UserDTO dto) {
+        return handleResult(userService.registerUser(dto));
     }
 
     @PostMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-        Optional<User> userOptional = userRepository.findByVerificationToken(token);
+    public ResponseEntity<OperationResult<String>> verifyEmail(@RequestParam String verificationToken) {
+        return userRepository.findByVerificationToken(verificationToken)
+                .map(user -> {
+                    user.setEmailVerified(true);
+                    user.setVerificationToken(null);
+                    userRepository.save(user);
 
-        if (userOptional.isEmpty()) return ResponseEntity.badRequest().body("Invalid verification token.");
-
-        User user = userOptional.get();
-        user.setEmailVerified(true);
-        user.setVerificationToken(null);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Email verified successfully. You can now log in.");
+                    OperationResult<String> result = new OperationResult<>();
+                    result.setStatus(OperationStatus.SUCCESS);
+                    result.setMessage("Email verified successfully");
+                    return result;
+                })
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    OperationResult<String> result = new OperationResult<>();
+                    result.setStatus(OperationStatus.FAILURE);
+                    result.setMessage("Invalid verification token");
+                    return ResponseEntity.badRequest().body(result);
+                });
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
                         request.password()
-                )
-        );
+                ));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-        String accessToken = jwtUtil.generateAccessToken(userDetails);
-        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+        return ResponseEntity.ok(new AuthenticationResponse(
+                jwtUtil.generateAccessToken(userDetails),
+                jwtUtil.generateRefreshToken(userDetails)
+        ));
+    }
 
-        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken));
+    private ResponseEntity<OperationResult<Long>> handleResult(OperationResult<Long> result) {
+        return ResponseEntity.status(result.getStatus() == OperationStatus.SUCCESS
+                        ? HttpStatus.OK
+                        : HttpStatus.BAD_REQUEST)
+                .body(result);
     }
 }
