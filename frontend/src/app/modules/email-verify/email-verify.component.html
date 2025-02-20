@@ -1,0 +1,19 @@
+<mat-card class="email-verify-card">
+  <h1>Almost one of us!</h1>
+  <p>
+    You are almost there! Click on the button below to finish your registration and to
+    verify your email!
+  </p>
+
+  <!-- Display success message if available -->
+  <div *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Display error message if available -->
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <button mat-raised-button color="primary" (click)="verify()">Verify</button>
+</mat-card>

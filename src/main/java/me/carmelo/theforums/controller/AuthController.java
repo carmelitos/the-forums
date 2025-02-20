@@ -43,11 +43,15 @@ public class AuthController {
 
     @PostMapping("/send-verification-email")
     public ResponseEntity<OperationResult<String>> sendVerificationEmail(@RequestBody String email) {
-        return new ResponseEntity<>(authService.sendVerificationEmail(email), HttpStatus.OK);
+        OperationResult<String> result = authService.sendVerificationEmail(email);
+        if (result.getStatus() == OperationStatus.FAILURE)
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/verify-email/{token}")
-    public ResponseEntity<OperationResult<String>> verifyEmail(@PathVariable String token) {
+    @PostMapping("/verify-email")
+    public ResponseEntity<OperationResult<String>> verifyEmail(@RequestBody String token) {
         return userRepository.findByVerificationToken(token)
                 .map(user -> {
                     user.setEmailVerified(true);

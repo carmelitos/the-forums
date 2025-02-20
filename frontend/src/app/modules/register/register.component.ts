@@ -67,6 +67,7 @@ export class RegisterComponent {
           if (result.status === 'SUCCESS') {
             this.authService.sendVerificationEmail(user.email).subscribe();
             localStorage.setItem('emailSent', 'true');
+            localStorage.setItem('pendingEmailVerification', 'true');
             this.router.navigate(['/email-sent']).then();
           } else {
             this.isRegistering = false;

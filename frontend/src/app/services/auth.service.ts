@@ -38,14 +38,12 @@ export interface OperationResult<T> {
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/api/auth`;
 
-  // Declare without initializing here
   public isAuthenticatedSubject: BehaviorSubject<boolean>;
 
   constructor(
     private http: HttpClient,
     private tokenStorage: TokenStorageService
   ) {
-    // Now tokenStorage is defined, so we can safely call getAccessToken()
     this.isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidAccessToken());
   }
 
@@ -76,6 +74,14 @@ export class AuthService {
 
   sendVerificationEmail(email: string): Observable<OperationResult<string>> {
     return this.http.post<OperationResult<string>>(`${this.baseUrl}/send-verification-email`, email).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  sendEmailVerify(token: string): Observable<OperationResult<string>> {
+    return this.http.post<OperationResult<string>>(`${this.baseUrl}/verify-email`, token).pipe(
       catchError((error) => {
         return throwError(() => error);
       })
