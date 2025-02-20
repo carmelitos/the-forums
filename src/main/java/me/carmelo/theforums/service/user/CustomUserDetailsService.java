@@ -30,16 +30,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        // Map roles to authorities (prefixed with "ROLE_")
         user.getRoles().forEach(role -> {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getId()));
-            // Also include permissions that come with the role (prefixed with "PERMISSION_")
             role.getPermissions().forEach(permission ->
                     authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
             );
         });
 
-        // Map any permissions that are directly assigned to the user
         user.getPermissions().forEach(permission ->
                 authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
         );
