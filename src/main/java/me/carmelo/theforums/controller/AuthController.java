@@ -52,24 +52,12 @@ public class AuthController {
 
     @PostMapping("/verify-email")
     public ResponseEntity<OperationResult<String>> verifyEmail(@RequestBody String token) {
-        return userRepository.findByVerificationToken(token)
-                .map(user -> {
-                    user.setEmailVerified(true);
-                    user.setVerificationToken(null);
-                    userRepository.save(user);
+        OperationResult<String> result = authService.verifyEmail(token);
 
-                    OperationResult<String> result = new OperationResult<>();
-                    result.setStatus(OperationStatus.SUCCESS);
-                    result.setMessage("Email verified successfully");
-                    return result;
-                })
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> {
-                    OperationResult<String> result = new OperationResult<>();
-                    result.setStatus(OperationStatus.FAILURE);
-                    result.setMessage("Invalid verification token");
-                    return ResponseEntity.badRequest().body(result);
-                });
+        if(result.getStatus() == OperationStatus.FAILURE)
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping("/login")

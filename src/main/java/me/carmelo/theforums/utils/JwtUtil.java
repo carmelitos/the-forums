@@ -20,14 +20,27 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
+    private final long emailTokenExpiration;
 
     public JwtUtil(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration.access}") long accessTokenExpiration,
-            @Value("${jwt.expiration.refresh}") long refreshTokenExpiration) {
+            @Value("${jwt.expiration.refresh}") long refreshTokenExpiration,
+            @Value("${jwt.expiration.email}") long emailTokenExpiration) {
         this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
+        this.emailTokenExpiration = emailTokenExpiration;
+    }
+
+    public String generateEmailVerificationToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + emailTokenExpiration))
+                .claim("purpose", "email_verification")
+                .signWith(secretKey)
+                .compact();
     }
 
     public String generateAccessToken(UserDetails userDetails) {

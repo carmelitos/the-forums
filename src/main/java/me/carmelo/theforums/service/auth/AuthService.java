@@ -5,6 +5,7 @@ import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.UserRepository;
 import me.carmelo.theforums.service.email.IEmailService;
+import me.carmelo.theforums.utils.JwtUtil;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,17 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AuthService implements IAuthService {
 
+    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private final IEmailService emailService;
     private final UserRepository userRepository;
-    private String verificationEmail;
+    private final String verificationEmail;
 
-    public AuthService(RedisTemplate<String, String> redisTemplate, IEmailService emailService, UserRepository userRepository) {
+    public AuthService(RedisTemplate<String, String> redisTemplate, IEmailService emailService, UserRepository userRepository, JwtUtil jwtUtil) {
         this.redisTemplate = redisTemplate;
         this.emailService = emailService;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
 
         try {
             this.verificationEmail =  loadHtmlVerificationEmail();
@@ -62,6 +65,56 @@ public class AuthService implements IAuthService {
         return new OperationResult<>(OperationStatus.SUCCESS, "Verification email sent", "Verification email sent");
     }
 
+    @Override
+    public OperationResult<String> verifyEmail(String token) {
+        if (!jwtUtil.validateToken(token)) {
+            OperationResult<String> result = new OperationResult<>();
+            result.setStatus(OperationStatus.FAILURE);
+            result.setMessage("Invalid verification token.");
+            return result;
+        }
+
+        if (jwtUtil.isTokenExpired(token)) {
+            OperationResult<String> result = new OperationResult<>();
+            result.setStatus(OperationStatus.FAILURE);
+            result.setMessage("Verification token expired. Please request a new verification email.");
+            return result;
+        }
+
+        Optional<String> emailOptional = jwtUtil.extractUsername(token);
+        if (emailOptional.isEmpty()) {
+            OperationResult<String> result = new OperationResult<>();
+            result.setStatus(OperationStatus.FAILURE);
+            result.setMessage("Invalid token: missing subject.");
+            return result;
+        }
+        String email = emailOptional.get();
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            OperationResult<String> result = new OperationResult<>();
+            result.setStatus(OperationStatus.FAILURE);
+            result.setMessage("User not found.");
+            return result;
+        }
+
+        User user = userOptional.get();
+        if (user.isEmailVerified()) {
+            OperationResult<String> result = new OperationResult<>();
+            result.setStatus(OperationStatus.FAILURE);
+            result.setMessage("User is already verified.");
+            return result;
+        }
+
+        user.setEmailVerified(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+
+        OperationResult<String> result = new OperationResult<>();
+        result.setStatus(OperationStatus.SUCCESS);
+        result.setMessage("Email verified successfully.");
+        return result;
+    }
 
     private String loadHtmlVerificationEmail() throws IOException {
         ClassPathResource resource = new ClassPathResource("email-verification-email-template.html");

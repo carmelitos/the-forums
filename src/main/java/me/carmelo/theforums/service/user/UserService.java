@@ -11,6 +11,7 @@ import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
 import me.carmelo.theforums.service.role.IRoleService;
+import me.carmelo.theforums.utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final IRoleService roleService;
+    private final JwtUtil jwtUtil;
 
     @Override
     public Optional<UserDTO> findById(Long id) {
@@ -93,7 +95,7 @@ public class UserService implements IUserService {
         User user = mapToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmailVerified(isAdminCreated);
-        if (!isAdminCreated) user.setVerificationToken(UUID.randomUUID().toString());
+        if (!isAdminCreated) user.setVerificationToken(jwtUtil.generateEmailVerificationToken(user.getEmail()));
 
         User savedUser = userRepository.save(user);
         String message = isAdminCreated ? "User created successfully" : "User created successfully. Email is unverified.";

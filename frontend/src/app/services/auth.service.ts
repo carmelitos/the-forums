@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { TokenStorageService } from './token-storage.service';
-import { environment } from '../enviroment/enviroment.prod';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, throwError, BehaviorSubject} from 'rxjs';
+import {tap, catchError} from 'rxjs/operators';
+import {TokenStorageService} from './token-storage.service';
+import {environment} from '../enviroment/enviroment.prod';
 
 export interface AuthenticationRequest {
   username: string;
@@ -93,7 +93,7 @@ export class AuthService {
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
-    return this.http.post<AuthenticationResponse>(`${this.baseUrl}/refresh-token`, { refreshToken }).pipe(
+    return this.http.post<AuthenticationResponse>(`${this.baseUrl}/refresh-token`, {refreshToken}).pipe(
       tap((response) => {
         this.tokenStorage.setAccessToken(response.accessToken);
         this.tokenStorage.setRefreshToken(response.refreshToken);

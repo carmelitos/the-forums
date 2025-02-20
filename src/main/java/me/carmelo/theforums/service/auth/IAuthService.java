@@ -4,4 +4,5 @@ import me.carmelo.theforums.model.result.OperationResult;
 
 public interface IAuthService {
     OperationResult<String> sendVerificationEmail(String email);
+    OperationResult<String> verifyEmail(String token);
 }

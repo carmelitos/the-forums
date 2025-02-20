@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
 import {AuthService} from '../../services/auth.service';
 
 @Component({
@@ -12,7 +12,7 @@ import {AuthService} from '../../services/auth.service';
   templateUrl: './email-verify.component.html',
   styleUrls: ['./email-verify.component.scss']
 })
-export class EmailVerifyComponent implements OnInit{
+export class EmailVerifyComponent implements OnInit {
   token: string | null | undefined;
   errorMessage: string | "" | undefined;
   successMessage: string | "" | undefined;
@@ -30,8 +30,12 @@ export class EmailVerifyComponent implements OnInit{
   }
 
   verify(): void {
-    if(this.token == null) {return;}
-    if(this.verifyButtonClicked) {return;}
+    if (this.token == null) {
+      return;
+    }
+    if (this.verifyButtonClicked) {
+      return;
+    }
 
     this.verifyButtonClicked = true;
 
@@ -39,7 +43,7 @@ export class EmailVerifyComponent implements OnInit{
       next: result => {
         this.successMessage = "Verification completed! You are being redirected to login page!"
         setTimeout(() => {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login']).then();
         }, 3000);
       },
       error: error => {

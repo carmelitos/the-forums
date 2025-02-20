@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { AuthService, UserDTO, OperationResult } from '../../services/auth.service';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {AuthService, UserDTO, OperationResult} from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -29,26 +29,26 @@ export class RegisterComponent {
   isRegistering: boolean;
 
   constructor(
-      private fb: FormBuilder,
-      private authService: AuthService,
-      private router: Router
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
   ) {
     this.isRegistering = false;
     this.registerForm = this.fb.group(
-        {
-          username: ['', Validators.required],
-          email: ['', [Validators.required, Validators.email]],
-          password: ['', Validators.required],
-          confirmPassword: ['', Validators.required]
-        },
-        { validators: this.passwordMatchValidator }
+      {
+        username: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', Validators.required],
+        confirmPassword: ['', Validators.required]
+      },
+      {validators: this.passwordMatchValidator}
     );
   }
 
   private passwordMatchValidator(form: FormGroup): null | object {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { mismatch: true };
+    return password === confirmPassword ? null : {mismatch: true};
   }
 
   onSubmit(): void {
@@ -59,7 +59,7 @@ export class RegisterComponent {
         password: this.registerForm.get('password')?.value
       };
 
-      if(this.isRegistering) return;
+      if (this.isRegistering) return;
 
       this.isRegistering = true;
       this.authService.register(user).subscribe({
@@ -67,7 +67,6 @@ export class RegisterComponent {
           if (result.status === 'SUCCESS') {
             this.authService.sendVerificationEmail(user.email).subscribe();
             localStorage.setItem('emailSent', 'true');
-            localStorage.setItem('pendingEmailVerification', 'true');
             this.router.navigate(['/email-sent']).then();
           } else {
             this.isRegistering = false;
