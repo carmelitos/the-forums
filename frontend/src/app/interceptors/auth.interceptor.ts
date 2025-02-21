@@ -47,12 +47,12 @@ export class AuthInterceptor implements HttpInterceptor {
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
+      this.refreshTokenSubject.next(null); // Pass a value (null) to reset
 
       return this.authService.refreshToken().pipe(
         switchMap((response) => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(response.accessToken);
+          this.refreshTokenSubject.next(response.accessToken); // Notify with the new token
           return next.handle(this.addToken(request, response.accessToken));
         }),
         catchError((err) => {

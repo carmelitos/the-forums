@@ -1,13 +1,11 @@
-package me.carmelo.theforums.service.permission;
+package me.carmelo.theforums.service.user.permission;
 
 import me.carmelo.theforums.entity.Permission;
 import me.carmelo.theforums.model.dto.PermissionDTO;
-import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.enums.DefaultPermission;
 import me.carmelo.theforums.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

@@ -1,8 +1,6 @@
 package me.carmelo.theforums.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -116,5 +114,20 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getExpiration();
+    }
+
+    public Optional<String> extractUsernameIgnoreExpiration(String token) {
+        try {
+            Jws<Claims> jws = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
+
+            return Optional.ofNullable(jws.getPayload().getSubject());
+        } catch (ExpiredJwtException e) {
+            return Optional.ofNullable(e.getClaims().getSubject());
+        } catch (JwtException | IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 }

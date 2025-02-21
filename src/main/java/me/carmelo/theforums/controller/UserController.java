@@ -1,4 +1,3 @@
-// UserController.java
 package me.carmelo.theforums.controller;
 
 import me.carmelo.theforums.model.dto.RoleDTO;
@@ -6,8 +5,6 @@ import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
-import me.carmelo.theforums.service.permission.PermissionService;
-import me.carmelo.theforums.service.role.IRoleService;
 import me.carmelo.theforums.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

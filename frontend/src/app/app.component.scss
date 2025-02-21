@@ -1,3 +1,13 @@
 .spacer {
   flex: 1 1 auto;
 }
+
+.custom-menu {
+  min-width: 220px;
+  font-size: 16px;
+  padding: 8px 0;
+}
+
+.custom-menu .mat-menu-item {
+  padding: 12px 24px;
+}

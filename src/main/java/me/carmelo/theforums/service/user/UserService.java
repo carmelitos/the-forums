@@ -10,7 +10,7 @@ import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
-import me.carmelo.theforums.service.role.IRoleService;
+import me.carmelo.theforums.service.user.role.IRoleService;
 import me.carmelo.theforums.utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

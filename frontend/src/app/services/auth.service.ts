@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, throwError, BehaviorSubject} from 'rxjs';
 import {tap, catchError} from 'rxjs/operators';
 import {TokenStorageService} from './token-storage.service';
@@ -106,8 +106,20 @@ export class AuthService {
     );
   }
 
-  logout(): void {
-    this.tokenStorage.clear();
-    this.isAuthenticatedSubject.next(false);
+  logout(): Observable<OperationResult<string>> {
+    const token = this.tokenStorage.getAccessToken();
+    const headers = token ? new HttpHeaders({Authorization: `Bearer ${token}`}) : new HttpHeaders();
+
+    return this.http.post<OperationResult<string>>(`${this.baseUrl}/logout`, {}, {headers}).pipe(
+      tap(() => {
+        this.tokenStorage.clear();
+        this.isAuthenticatedSubject.next(false);
+      }),
+      catchError((error) => {
+        this.tokenStorage.clear();
+        this.isAuthenticatedSubject.next(false);
+        return throwError(() => error);
+      })
+    );
   }
 }
