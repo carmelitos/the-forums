@@ -5,6 +5,8 @@ import { RegisterComponent } from './modules/register/register.component';
 import { EmailSentComponent } from './modules/email-sent/email-sent.component';
 import { EmailVerifyComponent } from './modules/email-verify/email-verify.component';
 import {AlreadyAuthenticatedGuard} from './guards/already-auth.guard';
+import {MaintenanceComponent} from './modules/maintenance/maintenance.component';
+import {AuthGuard} from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [AlreadyAuthenticatedGuard] },
@@ -15,5 +17,6 @@ export const routes: Routes = [
     canActivate: [EmailSentGuard]
   },
   { path: 'email-verify/:token', component: EmailVerifyComponent },
+  { path: 'maintenance', component: MaintenanceComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];
