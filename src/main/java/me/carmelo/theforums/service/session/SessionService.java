@@ -1,4 +1,4 @@
-package me.carmelo.theforums.service.auth;
+package me.carmelo.theforums.service.session;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package me.carmelo.theforums.service.auth;
+package me.carmelo.theforums.service.session;
 
 public interface ISessionService {
 

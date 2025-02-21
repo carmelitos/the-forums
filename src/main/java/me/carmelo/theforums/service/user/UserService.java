@@ -10,7 +10,7 @@ import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
-import me.carmelo.theforums.service.user.role.IRoleService;
+import me.carmelo.theforums.service.role.IRoleService;
 import me.carmelo.theforums.utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,18 +88,23 @@ public class UserService implements IUserService {
     public OperationResult<String> validateAndSaveUser(UserDTO userDTO, boolean isAdminCreated) {
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent())
             return new OperationResult<>(OperationStatus.FAILURE, "Username already exists", "username already exists");
-
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent())
             return new OperationResult<>(OperationStatus.FAILURE, "Email already exists", "email already exists");
 
         User user = mapToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmailVerified(isAdminCreated);
-        if (!isAdminCreated) user.setVerificationToken(jwtUtil.generateEmailVerificationToken(user.getEmail()));
 
-        User savedUser = userRepository.save(user);
-        String message = isAdminCreated ? "User created successfully" : "User created successfully. Email is unverified.";
-        String data = isAdminCreated ? "User created successfully" : savedUser.getVerificationToken();
+        //persist
+        userRepository.save(user);
+
+        String message = isAdminCreated
+                ? "User created successfully"
+                : "User created successfully. Email is unverified.";
+        String data = isAdminCreated
+                ? "User created successfully"
+                : "Verification token is now handled via Redis and AuthService.";
+
         return new OperationResult<>(OperationStatus.SUCCESS, message, data);
     }
 

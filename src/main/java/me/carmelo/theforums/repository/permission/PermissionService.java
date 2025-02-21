@@ -1,4 +1,4 @@
-package me.carmelo.theforums.service.user.permission;
+package me.carmelo.theforums.repository.permission;
 
 import me.carmelo.theforums.entity.Permission;
 import me.carmelo.theforums.model.dto.PermissionDTO;

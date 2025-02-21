@@ -1,4 +1,4 @@
-package me.carmelo.theforums.service.user.role;
+package me.carmelo.theforums.service.role;
 
 import me.carmelo.theforums.entity.Permission;
 import me.carmelo.theforums.entity.Role;
@@ -6,7 +6,7 @@ import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.enums.DefaultPermission;
 import me.carmelo.theforums.model.enums.DefaultRole;
 import me.carmelo.theforums.repository.RoleRepository;
-import me.carmelo.theforums.service.user.permission.IPermissionService;
+import me.carmelo.theforums.repository.permission.IPermissionService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

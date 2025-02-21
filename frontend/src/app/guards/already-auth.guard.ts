@@ -18,7 +18,7 @@ export class AlreadyAuthenticatedGuard implements CanActivate {
       take(1),
       map(isAuthenticated => {
         if (isAuthenticated) {
-          return this.router.createUrlTree(['/ciao']);
+          return this.router.createUrlTree(['/maintenance']); //todo this will become the homepage
         }
         return true;
       })

@@ -26,6 +26,8 @@ public class AuthService implements IAuthService {
     private final UserRepository userRepository;
     private final String verificationEmail;
 
+    private static final String EMAIL_VERIFICATION_PREFIX = "email_verification:";
+
     public AuthService(RedisTemplate<String, String> redisTemplate, IEmailService emailService, UserRepository userRepository, JwtUtil jwtUtil) {
         this.redisTemplate = redisTemplate;
         this.emailService = emailService;
@@ -39,81 +41,57 @@ public class AuthService implements IAuthService {
         }
     }
 
-
     @Override
     public OperationResult<String> sendVerificationEmail(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()) {
+        if (userOptional.isEmpty())
             return new OperationResult<>(OperationStatus.NOT_FOUND, "Incorrect email address", "Incorrect email address");
-        }
 
-        String redisKey = "verification_cooldown:" + email;
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(redisKey))) {
+        String redisKeyCooldown = "verification_cooldown:" + email;
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(redisKeyCooldown)))
             return new OperationResult<>(OperationStatus.FAILURE, "Email sent recently", "Please wait 3 minutes before requesting another email");
-        }
 
-        String token = userOptional.get().getVerificationToken();
-        if(token == null) new OperationResult<>(OperationStatus.FAILURE, "Token not found?", "Token not found?");
+        String token = jwtUtil.generateEmailVerificationToken(email);
+        redisTemplate.opsForValue().set(EMAIL_VERIFICATION_PREFIX + token, email, 3, TimeUnit.HOURS);
 
         try {
-            emailService.sendHtmlEmail("noreply", email, "Verify your email address", verificationEmail.replace("{verification-request-to-verify}", "http://localhost:4200/email-verify/" + token));
+            String verificationLink = "http://localhost:4200/email-verify/" + token;
+            String emailContent = verificationEmail.replace("{verification-request-to-verify}", verificationLink);
+            emailService.sendHtmlEmail("noreply", email, "Verify your email address", emailContent);
         } catch (Exception e) {
             return new OperationResult<>(OperationStatus.FAILURE, "Email failed to send", "Email failed to send");
         }
-        redisTemplate.opsForValue().set(redisKey, "cooldown_active", 180, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKeyCooldown, "cooldown_active", 180, TimeUnit.SECONDS);
 
         return new OperationResult<>(OperationStatus.SUCCESS, "Verification email sent", "Verification email sent");
     }
 
     @Override
     public OperationResult<String> verifyEmail(String token) {
-        if (!jwtUtil.validateToken(token)) {
-            OperationResult<String> result = new OperationResult<>();
-            result.setStatus(OperationStatus.FAILURE);
-            result.setMessage("Invalid verification token.");
-            return result;
-        }
+        if (!jwtUtil.validateToken(token))
+            return new OperationResult<>(OperationStatus.FAILURE, "Invalid verification token.", null);
 
-        if (jwtUtil.isTokenExpired(token)) {
-            OperationResult<String> result = new OperationResult<>();
-            result.setStatus(OperationStatus.FAILURE);
-            result.setMessage("Verification token expired. Please request a new verification email.");
-            return result;
-        }
+        if (jwtUtil.isTokenExpired(token))
+            return new OperationResult<>(OperationStatus.FAILURE, "Verification token expired. Please request a new verification email.", null);
 
-        Optional<String> emailOptional = jwtUtil.extractUsername(token);
-        if (emailOptional.isEmpty()) {
-            OperationResult<String> result = new OperationResult<>();
-            result.setStatus(OperationStatus.FAILURE);
-            result.setMessage("Invalid token: missing subject.");
-            return result;
-        }
-        String email = emailOptional.get();
+        String email = redisTemplate.opsForValue().get(EMAIL_VERIFICATION_PREFIX + token);
+        if (email == null)
+            return new OperationResult<>(OperationStatus.FAILURE, "Verification token not found or expired in Redis.", null);
 
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (!userOptional.isPresent()) {
-            OperationResult<String> result = new OperationResult<>();
-            result.setStatus(OperationStatus.FAILURE);
-            result.setMessage("User not found.");
-            return result;
-        }
+        if (userOptional.isEmpty())
+            return new OperationResult<>(OperationStatus.FAILURE, "User not found.", null);
 
         User user = userOptional.get();
-        if (user.isEmailVerified()) {
-            OperationResult<String> result = new OperationResult<>();
-            result.setStatus(OperationStatus.FAILURE);
-            result.setMessage("User is already verified.");
-            return result;
-        }
+        if (user.isEmailVerified())
+            return new OperationResult<>(OperationStatus.FAILURE, "User is already verified.", null);
 
         user.setEmailVerified(true);
-        user.setVerificationToken(null);
         userRepository.save(user);
 
-        OperationResult<String> result = new OperationResult<>();
-        result.setStatus(OperationStatus.SUCCESS);
-        result.setMessage("Email verified successfully.");
-        return result;
+        redisTemplate.delete(EMAIL_VERIFICATION_PREFIX + token);
+
+        return new OperationResult<>(OperationStatus.SUCCESS, "Email verified successfully.", null);
     }
 
     private String loadHtmlVerificationEmail() throws IOException {

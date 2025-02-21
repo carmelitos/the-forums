@@ -1,7 +1,7 @@
 package me.carmelo.theforums.config.security;
 
 import lombok.AllArgsConstructor;
-import me.carmelo.theforums.service.user.CustomUserDetailsService;
+import me.carmelo.theforums.service.user.custom.CustomUserDetailsService;
 import me.carmelo.theforums.utils.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

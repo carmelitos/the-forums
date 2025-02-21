@@ -1,4 +1,4 @@
-package me.carmelo.theforums.service.user;
+package me.carmelo.theforums.service.user.custom;
 
 import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.repository.UserRepository;

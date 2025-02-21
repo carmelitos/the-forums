@@ -1,13 +1,18 @@
+:host {
+  display: block;
+  padding-top: 64px;
+}
+
+mat-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #e1e1e8 !important;
+  color: #000000;
+}
+
 .spacer {
   flex: 1 1 auto;
-}
-
-.custom-menu {
-  min-width: 220px;
-  font-size: 16px;
-  padding: 8px 0;
-}
-
-.custom-menu .mat-menu-item {
-  padding: 12px 24px;
 }
