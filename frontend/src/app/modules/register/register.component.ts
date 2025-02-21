@@ -6,7 +6,9 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
-import {AuthService, UserDTO, OperationResult} from '../../services/auth.service';
+import {UserDTO} from '../../models/user-dto.model';
+import {OperationResult} from '../../models/operation-result.model';
+import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -67,16 +69,16 @@ export class RegisterComponent {
           if (result.status === 'SUCCESS') {
             this.authService.sendVerificationEmail(user.email).subscribe();
             localStorage.setItem('emailSent', 'true');
-            this.router.navigate(['/email-sent']).then();
+            this.router.navigate(['/email-sent'], { queryParams: { mode: 'verify' } }).then();
           } else {
             this.isRegistering = false;
             this.errorMessage = result.message;
           }
         },
-        error: (error) => {
-          console.error('Registration failed', error);
+        error: (err) => {
+          console.error('Registration failed', err);
           this.isRegistering = false;
-          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+          this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
         }
       });
     }

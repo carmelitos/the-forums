@@ -27,7 +27,6 @@ public class CorsConfig {
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply the CORS configuration to all endpoints
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

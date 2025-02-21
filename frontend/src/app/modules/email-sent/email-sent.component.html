@@ -1,8 +1,17 @@
 <mat-card class="email-sent-card">
-  <h1>Verification Email Sent</h1>
-  <p>
+  <!-- Decide which header to show based on mode -->
+  <h1 *ngIf="mode === 'verify'; else resetHeader">Verification Email Sent</h1>
+  <ng-template #resetHeader>
+    <h1>Password Reset Email Sent</h1>
+  </ng-template>
+
+  <p *ngIf="mode === 'verify'; else resetMessage">
     Thank you for registering! We have sent a verification email to your registered email address.
     Please check your inbox (and spam folder) to verify your account.
   </p>
-  <button mat-raised-button color="primary" (click)="goToLogin()">Back to Login</button>
+  <ng-template #resetMessage>
+    We have sent a password reset link to your email address.
+    Please check your inbox (and spam folder) to reset your password.
+  </ng-template>
+
 </mat-card>

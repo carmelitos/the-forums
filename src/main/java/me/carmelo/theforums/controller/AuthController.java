@@ -7,6 +7,8 @@ import me.carmelo.theforums.model.dto.AuthenticationResponse;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
+import me.carmelo.theforums.service.auth.IAuthService;
+import me.carmelo.theforums.service.session.ISessionService;
 import me.carmelo.theforums.service.session.SessionService;
 import me.carmelo.theforums.service.user.custom.CustomUserDetailsService;
 import me.carmelo.theforums.service.user.IUserService;
@@ -29,7 +31,8 @@ import java.util.Optional;
 public class AuthController {
 
     private final IUserService userService;
-    private final SessionService sessionService;
+    private final IAuthService authService;
+    private final ISessionService sessionService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
@@ -94,6 +97,25 @@ public class AuthController {
         OperationResult<String> result = new OperationResult<>();
         result.setStatus(OperationStatus.SUCCESS);
         result.setMessage("Logout successful.");
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/send-verification-email")
+    public ResponseEntity<OperationResult<String>> sendVerificationEmail(@RequestBody String email) {
+        OperationResult<String> result = authService.sendVerificationEmail(email);
+        if (result.getStatus() == OperationStatus.FAILURE)
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<OperationResult<String>> verifyEmail(@RequestBody String token) {
+        OperationResult<String> result = authService.verifyEmail(token);
+
+        if(result.getStatus() == OperationStatus.FAILURE)
+            return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

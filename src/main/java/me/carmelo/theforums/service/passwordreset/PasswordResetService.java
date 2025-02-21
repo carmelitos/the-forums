@@ -50,7 +50,7 @@ public class PasswordResetService implements IPasswordResetService {
                 Duration.ofHours(1)
         );
 
-        String resetLink = "http://localhost:4200/reset-password/" + token;
+        String resetLink = "http://localhost:4200/forgot-password-reset/" + token;
         String subject = "Password Reset Request";
         String emailContent = passwordResetEmailTemplate.replace("{password-reset-link}", resetLink);
 

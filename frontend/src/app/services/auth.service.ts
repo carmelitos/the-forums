@@ -4,33 +4,10 @@ import {Observable, throwError, BehaviorSubject} from 'rxjs';
 import {tap, catchError} from 'rxjs/operators';
 import {TokenStorageService} from './token-storage.service';
 import {environment} from '../enviroment/enviroment.prod';
-
-export interface AuthenticationRequest {
-  username: string;
-  password: string;
-}
-
-export interface AuthenticationResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface UserDTO {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export enum OperationStatus {
-  SUCCESS = 'SUCCESS',
-  FAILURE = 'FAILURE'
-}
-
-export interface OperationResult<T> {
-  status: OperationStatus;
-  message: string;
-  data?: T;
-}
+import {AuthenticationResponse} from '../models/authentication-response.model';
+import {AuthenticationRequest} from '../models/authentication-request.model';
+import {UserDTO} from '../models/user-dto.model';
+import {OperationResult} from '../models/operation-result.model';
 
 @Injectable({
   providedIn: 'root'
