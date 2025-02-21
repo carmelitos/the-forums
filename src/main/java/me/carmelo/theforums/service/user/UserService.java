@@ -1,11 +1,13 @@
 package me.carmelo.theforums.service.user;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.enums.DefaultRole;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.repository.RoleRepository;
@@ -106,6 +108,24 @@ public class UserService implements IUserService {
                 : "Verification token is now handled via Redis and AuthService.";
 
         return new OperationResult<>(OperationStatus.SUCCESS, message, data);
+    }
+
+    @Override //omg it's so ugly XD
+    @Transactional
+    public String createSuperUser() {
+
+        if(userRepository.findByUsername("superuser").isPresent())
+            return "already exists";
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("superuser");
+        userDTO.setEmail("superuser@example.com");
+        String password = UUID.randomUUID().toString().replace("-", "");
+        userDTO.setPassword(password);
+
+        validateAndSaveUser(userDTO, true);
+
+        return password;
     }
 
     private OperationResult<String> updateUserDetails(User user, UserDTO userDTO) {

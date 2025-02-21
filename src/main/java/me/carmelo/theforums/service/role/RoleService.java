@@ -31,13 +31,13 @@ public class RoleService implements IRoleService {
     }
 
     public Optional<RoleDTO> findById(String name) {
-        return roleRepository.findRoleByName(name).map(this::mapToDTO);
+        return roleRepository.findByName(name).map(this::mapToDTO);
     }
 
     protected void initDefaultRoles() {
         for (DefaultRole defaultRole : DefaultRole.values()) {
             String roleName = defaultRole.name();
-            if (roleRepository.findRoleByName(roleName).isPresent())
+            if (roleRepository.findByName(roleName).isPresent())
                 continue;
 
             Role role = new Role();

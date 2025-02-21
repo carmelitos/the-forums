@@ -23,4 +23,6 @@ public interface IUserService {
 
     List<RoleDTO> getUserRoles(Long userId);
     OperationResult<String> manageRoleForUser(Long id, UserRolesUpdateRequest request);
+
+    String createSuperUser();
 }
