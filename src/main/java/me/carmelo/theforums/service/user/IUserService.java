@@ -3,7 +3,9 @@ package me.carmelo.theforums.service.user;
 import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.dto.UserSearchCriteria;
 import me.carmelo.theforums.model.result.OperationResult;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,6 @@ public interface IUserService {
     OperationResult<String> manageRoleForUser(Long id, UserRolesUpdateRequest request);
 
     String createSuperUser();
+
+    Page<UserDTO> searchUsers(UserSearchCriteria criteria);
 }

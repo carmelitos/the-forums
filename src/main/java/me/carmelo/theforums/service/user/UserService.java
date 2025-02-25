@@ -4,9 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
+import me.carmelo.theforums.model.components.UserSpecification;
 import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.dto.UserSearchCriteria;
 import me.carmelo.theforums.model.enums.DefaultRole;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
@@ -14,6 +16,11 @@ import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
 import me.carmelo.theforums.service.role.IRoleService;
 import me.carmelo.theforums.utils.JwtUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +104,6 @@ public class UserService implements IUserService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmailVerified(isAdminCreated);
 
-        //persist
         userRepository.save(user);
 
         String message = isAdminCreated
@@ -126,6 +132,20 @@ public class UserService implements IUserService {
         validateAndSaveUser(userDTO, true);
 
         return password;
+    }
+
+    public Page<UserDTO> searchUsers(UserSearchCriteria criteria) {
+        Sort.Direction direction = Sort.Direction.fromString(criteria.getSortDirection());
+        Pageable pageable = PageRequest.of(
+                criteria.getPage(),
+                criteria.getSize(),
+                Sort.by(direction, criteria.getSortBy())
+        );
+
+        Specification<User> spec = UserSpecification.build(criteria);
+        Page<User> page = userRepository.findAll(spec, pageable);
+
+        return page.map(this::mapToDTO);
     }
 
     private OperationResult<String> updateUserDetails(User user, UserDTO userDTO) {

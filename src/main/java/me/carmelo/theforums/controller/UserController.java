@@ -3,10 +3,12 @@ package me.carmelo.theforums.controller;
 import me.carmelo.theforums.model.dto.RoleDTO;
 import me.carmelo.theforums.model.dto.UserDTO;
 import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.dto.UserSearchCriteria;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +33,13 @@ public class UserController {
     @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
     public ResponseEntity<UserDTO> get(@PathVariable Long id) {
         return ResponseEntity.of(userService.findById(id));
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
+    public ResponseEntity<Page<UserDTO>> search(@RequestBody UserSearchCriteria criteria) {
+        Page<UserDTO> result = userService.searchUsers(criteria);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}/roles")
