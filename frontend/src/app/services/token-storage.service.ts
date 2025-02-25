@@ -45,12 +45,26 @@ export class TokenStorageService {
     }
     try {
       const payload = token.split('.')[1];
-      // Replace URL-safe characters to standard Base64 characters
       const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
       const decodedPayload = JSON.parse(atob(base64));
       return decodedPayload.sub || null;
     } catch (error) {
       console.error('Error decoding JWT token:', error);
+      return null;
+    }
+  }
+
+  public getUserIdFromToken(): number | null {
+    const token = this.getAccessToken();
+    if (!token) {
+      return null;
+    }
+    try {
+      const payload = token.split('.')[1];
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(base64));
+      return decoded.user_id ? Number(decoded.user_id) : null;
+    } catch (error) {
       return null;
     }
   }

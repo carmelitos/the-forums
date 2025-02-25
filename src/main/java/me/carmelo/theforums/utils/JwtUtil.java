@@ -44,9 +44,10 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails, Long userId) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("user_id", userId)
                 .claim("authorities", userDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))

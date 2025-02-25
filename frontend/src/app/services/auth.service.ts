@@ -31,6 +31,7 @@ export class AuthService {
   login(request: AuthenticationRequest): Observable<AuthenticationResponse> {
     return this.http.post<AuthenticationResponse>(`${this.baseUrl}/login`, request).pipe(
       tap((response) => {
+        console.log(response);
         this.tokenStorage.setAccessToken(response.accessToken);
         this.tokenStorage.setRefreshToken(response.refreshToken);
         this.isAuthenticatedSubject.next(true);

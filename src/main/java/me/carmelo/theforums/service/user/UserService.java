@@ -4,9 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
-import me.carmelo.theforums.model.dto.RoleDTO;
-import me.carmelo.theforums.model.dto.UserDTO;
-import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.components.UserSpecification;
+import me.carmelo.theforums.model.dto.*;
 import me.carmelo.theforums.model.enums.DefaultRole;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
@@ -14,6 +13,11 @@ import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.UserRepository;
 import me.carmelo.theforums.service.role.IRoleService;
 import me.carmelo.theforums.utils.JwtUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +42,11 @@ public class UserService implements IUserService {
     @Override
     public Optional<UserDTO> findByUsername(String username) {
         return userRepository.findByUsername(username).map(this::mapToDTO);
+    }
+
+    @Override
+    public Long getUserId(String username) {
+        return userRepository.findByUsername(username).map(User::getId).orElse(null);
     }
 
     @Override
@@ -97,7 +106,6 @@ public class UserService implements IUserService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmailVerified(isAdminCreated);
 
-        //persist
         userRepository.save(user);
 
         String message = isAdminCreated
@@ -110,22 +118,32 @@ public class UserService implements IUserService {
         return new OperationResult<>(OperationStatus.SUCCESS, message, data);
     }
 
-    @Override //omg it's so ugly XD
-    @Transactional
-    public String createSuperUser() {
 
-        if(userRepository.findByUsername("superuser").isPresent())
-            return "already exists";
+    @Override
+    public Page<UserListItem> searchUsers(UserSearchCriteria criteria) {
+        Sort.Direction direction = Sort.Direction.fromString(criteria.getSortDirection());
+        Pageable pageable = PageRequest.of(
+                criteria.getPage(),
+                criteria.getSize(),
+                Sort.by(direction, criteria.getSortBy())
+        );
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("superuser");
-        userDTO.setEmail("superuser@example.com");
-        String password = UUID.randomUUID().toString().replace("-", "");
-        userDTO.setPassword(password);
+        Specification<User> spec = UserSpecification.build(criteria);
+        Page<User> page = userRepository.findAll(spec, pageable);
 
-        validateAndSaveUser(userDTO, true);
+        return page.map(this::mapToUserListItem);
+    }
 
-        return password;
+    @Override
+    public boolean userHasAnyRoles(Long userId, List<String> roleNames) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        User user = userOpt.get();
+        return user.getRoles().stream()
+                .map(Role::getName)
+                .anyMatch(roleNames::contains);
     }
 
     private OperationResult<String> updateUserDetails(User user, UserDTO userDTO) {
@@ -171,5 +189,49 @@ public class UserService implements IUserService {
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
         return user;
+    }
+
+    private UserListItem mapToUserListItem(User user) {
+        UserListItem userListItem = new UserListItem();
+
+        userListItem.setId(user.getId());
+        userListItem.setUsername(user.getUsername());
+        userListItem.setEmail(user.getEmail());
+        userListItem.setPhoneNumber(user.getPhoneNumber());
+
+        return userListItem;
+    }
+
+
+    @Override
+    @Transactional
+    public String createSuperUser() {
+        final String SUPERUSER_USERNAME = "superuser";
+        final String SUPERUSER_EMAIL = "superuser@example.com";
+
+        if (userRepository.findByUsername(SUPERUSER_USERNAME).isPresent()) return "already exists";
+        String password = UUID.randomUUID().toString().replace("-", "");
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(SUPERUSER_USERNAME);
+        userDTO.setEmail(SUPERUSER_EMAIL);
+        userDTO.setPassword(password);
+
+        OperationResult<String> result = validateAndSaveUser(userDTO, true);
+        if (result.getStatus() == OperationStatus.FAILURE) return "Failed to create superuser: " + result.getMessage();
+
+        Optional<User> userOpt = userRepository.findByUsername(SUPERUSER_USERNAME);
+        if (userOpt.isEmpty()) return "Failed to find newly created superuser."; //wtf?
+        User superUser = userOpt.get();
+
+        Optional<Role> adminRoleOpt = roleRepository.findByName(DefaultRole.ADMIN.name());
+        if (adminRoleOpt.isPresent()) {
+            superUser.getRoles().add(adminRoleOpt.get());
+            userRepository.save(superUser);
+        } else {
+            return "ADMIN role not found in the system.";
+        }
+
+        return password;
     }
 }

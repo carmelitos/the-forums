@@ -1,12 +1,11 @@
 package me.carmelo.theforums.controller;
 
-import me.carmelo.theforums.model.dto.RoleDTO;
-import me.carmelo.theforums.model.dto.UserDTO;
-import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
+import me.carmelo.theforums.model.dto.*;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,10 +32,24 @@ public class UserController {
         return ResponseEntity.of(userService.findById(id));
     }
 
+    @PostMapping("/search")
+    @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
+    public ResponseEntity<Page<UserListItem>> search(@RequestBody UserSearchCriteria criteria) {
+        Page<UserListItem> result = userService.searchUsers(criteria);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
     public ResponseEntity<List<RoleDTO>> getRolesFromUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserRoles(id));
+    }
+
+    @PostMapping("/{id}/has-any-roles")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> userHasAnyRoles(@PathVariable Long id, @RequestBody List<String> roleNames) {
+        boolean result = userService.userHasAnyRoles(id, roleNames);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping

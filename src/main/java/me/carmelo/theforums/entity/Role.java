@@ -2,9 +2,9 @@ package me.carmelo.theforums.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,10 +12,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "roles", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @EqualsAndHashCode.Include
     private int id;
 
     private String name;
