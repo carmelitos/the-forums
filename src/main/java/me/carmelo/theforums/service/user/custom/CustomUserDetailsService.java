@@ -33,14 +33,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
         user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getId()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
             role.getPermissions().forEach(permission ->
-                    authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
+                    authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getName()))
             );
         });
 
         user.getPermissions().forEach(permission ->
-                authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getId()))
+                authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission.getName()))
         );
 
         return new org.springframework.security.core.userdetails.User(

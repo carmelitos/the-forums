@@ -2,6 +2,7 @@ package me.carmelo.theforums.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import me.carmelo.theforums.entity.User;
 import me.carmelo.theforums.model.dto.AuthenticationRequest;
 import me.carmelo.theforums.model.dto.AuthenticationResponse;
 import me.carmelo.theforums.model.dto.UserDTO;
@@ -78,8 +79,9 @@ public class AuthController {
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
         sessionService.createSession(userDetails.getUsername());
+
         return ResponseEntity.ok(new AuthenticationResponse(
-                jwtUtil.generateAccessToken(userDetails),
+                jwtUtil.generateAccessToken(userDetails, userService.getUserId(request.username())),
                 jwtUtil.generateRefreshToken(userDetails)
         ));
     }

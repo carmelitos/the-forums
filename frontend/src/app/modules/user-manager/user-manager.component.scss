@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.filter-card {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.list-card {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1rem;
+}

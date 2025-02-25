@@ -9,6 +9,8 @@ import {MaintenanceComponent} from './modules/maintenance/maintenance.component'
 import {AuthGuard} from './guards/auth.guard';
 import {ForgotPasswordComponent} from './modules/forgot-password/forgot-password.component';
 import {ForgotPasswordResetComponent} from './modules/forgot-password-reset/forgot-password-reset.component';
+import {UserManagerComponent} from './modules/user-manager/user-manager.component';
+import {RoleGuard} from './guards/role.guard';
 
 export const routes: Routes = [
   {path: 'login', component: LoginComponent, canActivate: [AlreadyAuthenticatedGuard]},
@@ -22,5 +24,6 @@ export const routes: Routes = [
   {path: 'forgot-password-reset/:token', component: ForgotPasswordResetComponent},
   {path: 'forgot-password', component: ForgotPasswordComponent},
   {path: 'maintenance', component: MaintenanceComponent, canActivate: [AuthGuard]},
+  {path: 'manage-users', component: UserManagerComponent, canActivate: [RoleGuard], data: { roles: ['ADMIN']}},
   {path: '', redirectTo: 'login', pathMatch: 'full'}
 ];

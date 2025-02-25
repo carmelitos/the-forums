@@ -11,6 +11,7 @@ import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import {TokenStorageService} from '../services/token-storage.service';
 import {AuthService} from '../services/auth.service';
 
+
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
@@ -22,7 +23,6 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Add token to headers if available
     const accessToken = this.tokenStorage.getAccessToken();
     if (accessToken) {
       request = this.addToken(request, accessToken);

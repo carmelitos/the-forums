@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-maintenance',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, NgOptimizedImage],
+  imports: [CommonModule, MatCardModule, MatButtonModule],
   templateUrl: './maintenance.component.html',
   styleUrls: ['./maintenance.component.scss']
 })

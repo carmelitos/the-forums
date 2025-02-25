@@ -1,9 +1,6 @@
 package me.carmelo.theforums.controller;
 
-import me.carmelo.theforums.model.dto.RoleDTO;
-import me.carmelo.theforums.model.dto.UserDTO;
-import me.carmelo.theforums.model.dto.UserRolesUpdateRequest;
-import me.carmelo.theforums.model.dto.UserSearchCriteria;
+import me.carmelo.theforums.model.dto.*;
 import me.carmelo.theforums.model.enums.OperationStatus;
 import me.carmelo.theforums.model.result.OperationResult;
 import me.carmelo.theforums.service.user.IUserService;
@@ -37,8 +34,8 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
-    public ResponseEntity<Page<UserDTO>> search(@RequestBody UserSearchCriteria criteria) {
-        Page<UserDTO> result = userService.searchUsers(criteria);
+    public ResponseEntity<Page<UserListItem>> search(@RequestBody UserSearchCriteria criteria) {
+        Page<UserListItem> result = userService.searchUsers(criteria);
         return ResponseEntity.ok(result);
     }
 
@@ -46,6 +43,13 @@ public class UserController {
     @PreAuthorize("hasAuthority('PERMISSION_READ_USER')")
     public ResponseEntity<List<RoleDTO>> getRolesFromUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserRoles(id));
+    }
+
+    @PostMapping("/{id}/has-any-roles")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> userHasAnyRoles(@PathVariable Long id, @RequestBody List<String> roleNames) {
+        boolean result = userService.userHasAnyRoles(id, roleNames);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
