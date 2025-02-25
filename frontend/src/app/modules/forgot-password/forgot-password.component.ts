@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import {PasswordResetService} from '../../services/password-reset.service';
 import {OperationStatus} from '../../models/enums/operation-status.model';
 import {OperationResult} from '../../models/operation-result.model';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-forgot-password',
@@ -21,7 +22,8 @@ import {OperationResult} from '../../models/operation-result.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatIconModule
   ]
 })
 export class ForgotPasswordComponent {

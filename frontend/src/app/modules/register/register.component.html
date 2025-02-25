@@ -38,9 +38,13 @@
     <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
     <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
     <div class="button-container">
-      <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid">
+      <button mat-raised-button class="register-button" type="submit" [disabled]="registerForm.invalid">
+        <mat-icon>app_registration</mat-icon>
         Register
       </button>
     </div>
   </form>
+  <div class="already-registered">
+    <a routerLink="/login">Already Registered? Click here</a>
+  </div>
 </mat-card>

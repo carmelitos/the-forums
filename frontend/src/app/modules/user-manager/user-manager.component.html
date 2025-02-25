@@ -5,23 +5,26 @@
         <form [formGroup]="filterForm">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>ID</mat-label>
-            <input matInput type="number" formControlName="idFilter" />
+            <input matInput type="number" formControlName="idFilter"/>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Username</mat-label>
-            <input matInput formControlName="usernameFilter" />
+            <input matInput formControlName="usernameFilter"/>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="emailFilter" />
+            <input matInput formControlName="emailFilter"/>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="phoneNumberFilter" />
+            <input matInput formControlName="phoneNumberFilter"/>
           </mat-form-field>
-          <button mat-raised-button color="primary" (click)="applyFilters()">
-            Apply Filters
-          </button>
+          <div class="search-button-container">
+            <button mat-raised-button class="search-button" (click)="applyFilters()">
+              <mat-icon>search</mat-icon>
+              Search
+            </button>
+          </div>
         </form>
       </mat-card-content>
     </mat-card>

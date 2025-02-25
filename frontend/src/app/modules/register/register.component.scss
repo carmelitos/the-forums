@@ -17,6 +17,23 @@ mat-card {
   margin-top: 1rem;
 }
 
+.register-button {
+  border-radius: 0 !important;
+
+  background-color: #4caf50 !important;
+  color: #fff !important;
+}
+
+.already-registered {
+  margin-top: -2rem;
+  margin-left: -0.2rem;
+  a {
+    text-decoration: none;
+    color: #3f51b5;
+    font-weight: 250;
+  }
+}
+
 .error {
   color: red;
   margin-bottom: 1rem;

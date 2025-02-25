@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import {AuthService} from '../../services/auth.service';
 import {AuthenticationRequest} from '../../models/authentication-request.model';
 import {AuthenticationResponse} from '../../models/authentication-response.model';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ import {AuthenticationResponse} from '../../models/authentication-response.model
     MatInputModule,
     MatButtonModule,
     MatCardModule,
+    MatIconModule,
     RouterLink
   ],
   templateUrl: './login.component.html',

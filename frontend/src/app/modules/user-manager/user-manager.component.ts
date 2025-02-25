@@ -12,6 +12,7 @@ import { UserSearchCriteria } from '../../models/user-search-criteria.model';
 import { Page } from '../../models/page.model';
 import { UserListItem } from '../../models/user-list-item.model';
 import { UserService } from '../../services/user.service';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-user-manager',
@@ -25,7 +26,8 @@ import { UserService } from '../../services/user.service';
     MatButtonModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatIconModule,
   ],
   templateUrl: './user-manager.component.html',
   styleUrls: ['./user-manager.component.scss']

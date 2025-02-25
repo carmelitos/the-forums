@@ -17,7 +17,8 @@
     </mat-form-field>
     <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
     <div class="button-container">
-      <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
+      <button mat-raised-button class="login-button" type="submit" [disabled]="loginForm.invalid">
+        <mat-icon>login</mat-icon>
         Login
       </button>
     </div>

@@ -51,6 +51,23 @@
   }
 }
 
+.search-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-button {
+  border-radius: 0 !important;
+
+  background-color: #4caf50 !important;
+  color: #fff !important;
+
+  .mat-icon {
+    margin-right: 8px;
+  }
+}
+
+
 .full-width {
   width: 100%;
 }
