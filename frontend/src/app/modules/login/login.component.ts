@@ -45,7 +45,7 @@ export class LoginComponent {
       const credentials: AuthenticationRequest = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: (response: AuthenticationResponse) => {
-          this.router.navigate(['/maintenance']).then(); //todo add proper navigation
+          this.router.navigate(['/maintenance']).then();
         },
         error: (error: any) => {
           console.error('Login failed', error);

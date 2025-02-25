@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { UserSearchCriteria } from '../../models/user-search-criteria.model';
 import { Page } from '../../models/page.model';
-import { UserListItem } from '../../models/user-list-item.model';  // <-- new model
+import { UserListItem } from '../../models/user-list-item.model';
 import { UserService } from '../../services/user.service';
 
 @Component({
@@ -33,7 +33,7 @@ import { UserService } from '../../services/user.service';
 export class UserManagerComponent implements OnInit {
   filterForm: FormGroup;
   displayedColumns: string[] = ['id', 'username', 'email', 'phoneNumber'];
-  dataSource: UserListItem[] = [];  // <-- replaced UserDTO[] with UserListItem[]
+  dataSource: UserListItem[] = [];
   totalElements = 0;
   pageSizeOptions = [10, 50, 100];
   pageIndex = 0;
@@ -41,6 +41,8 @@ export class UserManagerComponent implements OnInit {
   sortBy = 'id';
   sortDirection: 'ASC' | 'DESC' = 'ASC';
 
+  // Reference the table container for dynamic height
+  @ViewChild('tableContainer') tableContainer!: ElementRef<HTMLDivElement>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -58,6 +60,7 @@ export class UserManagerComponent implements OnInit {
 
   ngOnInit(): void {
     this.searchUsers();
+    this.fixTableHeight();
   }
 
   searchUsers(): void {
@@ -72,10 +75,10 @@ export class UserManagerComponent implements OnInit {
       sortDirection: this.sortDirection
     };
 
-    // subscribe to Page<UserListItem>
     this.userService.searchUsers(criteria).subscribe((page: Page<UserListItem>) => {
       this.dataSource = page.content;
       this.totalElements = page.totalElements;
+      this.fixTableHeight();
     });
   }
 
@@ -99,5 +102,15 @@ export class UserManagerComponent implements OnInit {
       this.sortDirection = sort.direction.toUpperCase() as 'ASC' | 'DESC';
     }
     this.searchUsers();
+  }
+
+  private fixTableHeight(): void {
+    const rowHeight = 48;   // px per row
+    const headerHeight = 48; // px for the table header row
+    const container = this.tableContainer.nativeElement;
+
+    const totalHeight = (this.pageSize * rowHeight) + headerHeight;
+    container.style.height = totalHeight + 'px';
+    container.style.overflowY = 'auto';
   }
 }
