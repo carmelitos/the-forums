@@ -2,9 +2,10 @@ package me.carmelo.theforums.service.user;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import me.carmelo.theforums.entity.Permission;
 import me.carmelo.theforums.entity.Role;
 import me.carmelo.theforums.entity.User;
-import me.carmelo.theforums.model.components.UserSpecification;
+import me.carmelo.theforums.model.specification.UserSpecification;
 import me.carmelo.theforums.model.dto.*;
 import me.carmelo.theforums.model.enums.DefaultRole;
 import me.carmelo.theforums.model.enums.OperationStatus;
@@ -198,6 +199,9 @@ public class UserService implements IUserService {
         userListItem.setUsername(user.getUsername());
         userListItem.setEmail(user.getEmail());
         userListItem.setPhoneNumber(user.getPhoneNumber());
+
+        userListItem.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        userListItem.setPermissions(user.getPermissions().stream().map(Permission::getName).collect(Collectors.toSet()));
 
         return userListItem;
     }

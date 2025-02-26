@@ -19,19 +19,19 @@ public class JwtUtil {
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
     private final long emailTokenExpiration;
-    private final long passowrdResetExpiration;
+    private final long passwordResetExpiration;
 
     public JwtUtil(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration.access}") long accessTokenExpiration,
             @Value("${jwt.expiration.refresh}") long refreshTokenExpiration,
             @Value("${jwt.expiration.email}") long emailTokenExpiration,
-            @Value("${jwt.expiration.password-reset}") long passowrdResetExpiration) {
+            @Value("${jwt.expiration.password-reset}") long passwordResetExpiration) {
         this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.emailTokenExpiration = emailTokenExpiration;
-        this.passowrdResetExpiration = passowrdResetExpiration;
+        this.passwordResetExpiration = passwordResetExpiration;
     }
 
     public String generateEmailVerificationToken(String email) {
@@ -140,7 +140,7 @@ public class JwtUtil {
                 .subject(email)
                 .claim("purpose", "password_reset")
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + passowrdResetExpiration))
+                .expiration(new Date(System.currentTimeMillis() + passwordResetExpiration))
                 .signWith(secretKey)
                 .compact();
     }

@@ -2,12 +2,17 @@ package me.carmelo.theforums.model.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class UserSearchCriteria {
-    private Long idFilter;           // Exact match on ID
-    private String usernameFilter;   // Partial match on username
-    private String emailFilter;      // Partial match on email
-    private String phoneNumberFilter; // Partial match on phone number
+    private Long idFilter;
+    private String usernameFilter;
+    private String emailFilter;
+    private String phoneNumberFilter;
+
+    private List<String> rolesFilter;
+    private List<String> permissionsFilter;
 
     private int page = 0;
     private int size = 10;

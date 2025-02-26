@@ -6,5 +6,7 @@ public enum DefaultPermission {
     CREATE_USER,
     UPDATE_USER,
     DELETE_USER,
+    READ_PERMISSIONS,
+    READ_ROLES,
 
 }

@@ -6,7 +6,9 @@ import me.carmelo.theforums.model.enums.DefaultPermission;
 import me.carmelo.theforums.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionService implements IPermissionService {
@@ -49,5 +51,10 @@ public class PermissionService implements IPermissionService {
         permissionDTO.setName(permission.getName());
         permissionDTO.setDefault(permission.isDefault());
         return permissionDTO;
+    }
+
+    @Override
+    public List<PermissionDTO> findAll() {
+        return permissionRepository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 }

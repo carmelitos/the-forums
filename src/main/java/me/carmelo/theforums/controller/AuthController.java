@@ -57,9 +57,9 @@ public class AuthController {
         }
 
         OperationResult<String> responseEntity = userService.validateAndSaveUser(dto, false);
-        if (responseEntity.getStatus() == OperationStatus.FAILURE) {
+        if (responseEntity.getStatus() == OperationStatus.FAILURE)
             return new ResponseEntity<>(responseEntity, HttpStatus.BAD_REQUEST);
-        }
+
         return new ResponseEntity<>(responseEntity, HttpStatus.OK);
     }
 
@@ -115,7 +115,7 @@ public class AuthController {
     public ResponseEntity<OperationResult<String>> verifyEmail(@RequestBody String token) {
         OperationResult<String> result = authService.verifyEmail(token);
 
-        if(result.getStatus() == OperationStatus.FAILURE)
+        if (result.getStatus() == OperationStatus.FAILURE)
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>(result, HttpStatus.OK);

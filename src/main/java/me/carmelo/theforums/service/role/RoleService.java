@@ -9,6 +9,7 @@ import me.carmelo.theforums.repository.RoleRepository;
 import me.carmelo.theforums.repository.permission.IPermissionService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,10 @@ public class RoleService implements IRoleService {
         this.permissionService = permissionService;
 
         initDefaultRoles();
+    }
+
+    public List<RoleDTO> findAll() {
+        return roleRepository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public Optional<RoleDTO> findById(Long id) {

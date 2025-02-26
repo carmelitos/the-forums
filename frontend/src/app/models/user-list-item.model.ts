@@ -3,4 +3,8 @@ export interface UserListItem {
   username: string;
   email: string;
   phoneNumber: string;
+
+  roles: string[];
+  permissions: string[];
+
 }

@@ -6,10 +6,7 @@ import lombok.Getter;
 public enum DefaultRole {
 
     ADMIN(
-            DefaultPermission.CREATE_USER,
-            DefaultPermission.UPDATE_USER,
-            DefaultPermission.DELETE_USER,
-            DefaultPermission.READ_USER
+            DefaultPermission.values()
     ),
     USER;
 
